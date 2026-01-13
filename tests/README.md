@@ -38,12 +38,16 @@ This directory contains unit tests for the Nginx configuration that validate sta
 
 Choose the appropriate test method based on your environment:
 
-| Environment | Recommended Test Method | Requirements |
-|-------------|------------------------|--------------|
-| **Development (Quick validation)** | Configuration Validation | PowerShell only |
-| **Windows + Docker** | PowerShell Integration Tests | Docker, Docker Compose, PowerShell |
-| **Unix/Linux + Docker** | Bash Integration Tests | Docker, Docker Compose, curl, bash |
-| **CI/CD Pipeline** | Layered testing approach | Docker, Docker Compose |
+| Environment | Recommended Test Method | Requirements | Files Used |
+|-------------|------------------------|--------------|------------|
+| **Development (Windows)** | PowerShell Configuration Validation | PowerShell only | `validate-*.ps1`, `Test-LocalhostAccessibility.ps1` |
+| **Production (Linux/Unix)** | Bash Integration + Node.js Property Tests | Docker, Docker Compose, npm, bash | `test-*.sh`, `*.test.js` |
+| **CI/CD Pipeline** | Full Production Test Suite | Docker, Docker Compose, npm, bash | All bash and Node.js files |
+
+**Environment-Specific Strategy:**
+- **No Duplication**: PowerShell files are for development only, bash/npm files are for production only
+- **Clear Separation**: Each environment has distinct tooling to avoid maintenance overhead
+- **Focused Testing**: Development focuses on configuration validation, production focuses on runtime behavior
 
 ## Prerequisites
 
@@ -57,32 +61,34 @@ Choose the appropriate test method based on your environment:
 
 ## Running the Tests
 
-### 1. Configuration Validation (No Docker Required)
-**Requirements**: PowerShell only
+### Development Environment (Windows - PowerShell Only)
+**Requirements**: PowerShell only (no Docker or npm required)
 ```powershell
-# Run configuration validation tests
+# Configuration validation tests
 powershell -ExecutionPolicy Bypass -File tests/validate-nginx-config.ps1 -Verbose
+powershell -ExecutionPolicy Bypass -File tests/validate-deployment-config.ps1 -Verbose
+
+# Property-based tests (simulation mode)
+powershell -ExecutionPolicy Bypass -File tests/property-tests/Test-LocalhostAccessibility.ps1 -Verbose
 ```
 
-### 2. Integration Tests (Docker Required)
-
-#### Option A: PowerShell Integration Tests (Windows)
-**Requirements**: Docker, Docker Compose, PowerShell
-```powershell
-# Ensure Docker and Docker Compose are installed and running
-docker --version
-docker compose version
-
-# Run PowerShell integration tests
-powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose
-```
-
-#### Option B: Bash Integration Tests (Unix/Linux)
-**Requirements**: Docker, Docker Compose, curl, bash
+### Production Environment (Linux/Unix - Docker + npm + bash)
+**Requirements**: Docker, Docker Compose, npm, Node.js, bash
 ```bash
-# Run bash tests
+# Integration tests
 chmod +x tests/test-nginx-config.sh
 ./tests/test-nginx-config.sh
+
+chmod +x tests/test-deployment-lenient.sh
+./tests/test-deployment-lenient.sh
+
+# Property-based tests
+npm install
+npm run test:property
+
+# Or use bash property tests
+chmod +x tests/property-tests/test-localhost-accessibility-fast.sh
+./tests/property-tests/test-localhost-accessibility-fast.sh
 ```
 
 ## Test Coverage

@@ -70,7 +70,9 @@ This implementation plan focuses on Phase 1: creating a minimal containerized we
     - Test container startup and shutdown procedures
     - _Requirements: 2.2_
 
-  - [ ]* 6.2 Write integration tests for container deployment
+- [ ]* 6.2 Write integration tests for container deployment
+    - **Development Environment**: PowerShell configuration validation only (no Docker required)
+    - **Production Environment**: Create bash scripts and Node.js tests for full container testing
     - Test Docker container startup process
     - Test service availability after deployment
     - _Requirements: 2.1, 2.2, 2.3_

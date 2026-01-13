@@ -91,7 +91,7 @@ function Test-DockerComposeConfiguration {
         
         if ($hasHealthCheck) {
             # Test 12: Health check has test command
-            $hasHealthTest = $dockerComposeContent -match "test:\s*\[.*wget.*\]"
+            $hasHealthTest = $dockerComposeContent -match "test:\s*\[.*curl.*\]"
             Write-TestResult -TestName "Health check has test command" -Success $hasHealthTest
             
             # Test 13: Health check has interval

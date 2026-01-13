@@ -227,25 +227,36 @@ The system will use both unit tests and property-based tests for comprehensive c
 
 ### Multi-Environment Testing Support
 
-**Development Environment (Limited Dependencies):**
-- **Requirements**: PowerShell only
-- **Capabilities**: Configuration validation, simulation-based property testing
-- **Tools**: PowerShell scripts with built-in HTTP testing
+**Development Environment (Local Development):**
+- **Requirements**: PowerShell only (Windows)
+- **Capabilities**: Configuration validation, deployment readiness verification
+- **Tools**: PowerShell scripts for file validation and configuration checking
 - **Purpose**: Quick validation without Docker/npm dependencies
+- **Files**: 
+  - `tests/validate-nginx-config.ps1`
+  - `tests/validate-deployment-config.ps1`
+  - `tests/property-tests/Test-LocalhostAccessibility.ps1`
 
-**Production Environment (Full Dependencies):**
-- **Requirements**: Docker, Docker Compose, npm, Node.js, bash
+**Production Environment (CI/CD and Server Deployment):**
+- **Requirements**: Docker, Docker Compose, npm, Node.js, bash (Linux/Unix)
 - **Capabilities**: Full container testing, comprehensive property-based testing
-- **Tools**: Node.js with property-based testing libraries, bash scripts
+- **Tools**: Node.js with fast-check library, bash scripts, Docker API
 - **Purpose**: Complete end-to-end validation with actual containers
+- **Files**:
+  - `tests/test-nginx-config.sh`
+  - `tests/test-deployment.sh`
+  - `tests/test-deployment-lenient.sh`
+  - `tests/property-tests/localhost-accessibility.test.js`
+  - `tests/property-tests/test-localhost-accessibility*.sh`
+
+**Environment-Specific File Strategy:**
+- **No Duplication**: PowerShell files are for development only, bash/npm files are for production only
+- **Clear Separation**: Each environment has distinct tooling and file sets
+- **No Cross-Platform Files**: Avoid maintaining both PowerShell and bash versions of the same functionality
 
 **Property Test Configuration:**
-- **Development**: PowerShell-based with simulation mode for missing dependencies
+- **Development**: PowerShell-based simulation mode (no actual HTTP requests)
 - **Production**: Node.js with fast-check library for comprehensive property testing
 - Each property test references its design document property
 - Tag format: **Feature: extensible-web-app, Property {number}: {property_text}**
 - Focus on HTTP response validation and container behavior
-
-**Testing Tools by Environment:**
-- **Development**: PowerShell HTTP client, configuration validation
-- **Production**: Node.js HTTP libraries, Docker API, HTML parsing libraries

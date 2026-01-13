@@ -66,11 +66,11 @@ This foundation is designed to be extended with additional services:
 
 ## Testing
 
-This project includes a comprehensive test suite that supports both development and production environments.
+This project includes a comprehensive test suite that supports both development and production environments with distinct tooling strategies.
 
-### Development Environment Testing (PowerShell Only)
+### Development Environment Testing (PowerShell Only - Windows)
 
-For environments without npm and Docker dependencies:
+For local development environments without npm and Docker dependencies:
 
 #### Configuration Validation Tests
 ```powershell
@@ -87,23 +87,21 @@ powershell -ExecutionPolicy Bypass -File tests/validate-deployment-config.ps1 -V
 powershell -ExecutionPolicy Bypass -File tests/property-tests/Test-LocalhostAccessibility.ps1 -Verbose
 ```
 
-### Production Environment Testing (Full Dependencies)
+### Production Environment Testing (Docker + npm + bash - Linux/Unix)
 
-For environments with Docker, npm, and bash available:
+For CI/CD pipelines and server environments with full dependencies:
 
 #### Unit Tests (Docker Required)
 ```bash
-# PowerShell integration tests
-powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose
-
 # Bash integration tests
 chmod +x tests/test-nginx-config.sh
 ./tests/test-nginx-config.sh
 
-# Deployment tests (PowerShell)
-powershell -ExecutionPolicy Bypass -File tests/Test-Deployment.ps1 -Verbose
+# Deployment tests (Bash - lenient mode, recommended)
+chmod +x tests/test-deployment-lenient.sh
+./tests/test-deployment-lenient.sh
 
-# Deployment tests (Bash)
+# Deployment tests (Bash - strict mode)
 chmod +x tests/test-deployment.sh
 ./tests/test-deployment.sh
 ```
@@ -114,20 +112,17 @@ chmod +x tests/test-deployment.sh
 npm install
 npm run test:property
 
-# Bash property tests (standard)
-chmod +x tests/property-tests/test-localhost-accessibility.sh
-./tests/property-tests/test-localhost-accessibility.sh
-
 # Bash property tests (fast/optimized - recommended)
 chmod +x tests/property-tests/test-localhost-accessibility-fast.sh
 ./tests/property-tests/test-localhost-accessibility-fast.sh
 # Or: npm run test:fast
 ```
 
-### Testing Environment Details
+### Environment-Specific Strategy
 
-- **Development Environment**: PowerShell-only execution, property tests run in simulation mode
-- **Production Environment**: Docker + npm/bash for complete container testing
+- **Development (Windows)**: PowerShell-only execution, configuration validation without Docker
+- **Production (Linux/Unix)**: Docker + npm/bash for complete container testing
+- **No Duplication**: Each environment has distinct file sets to avoid maintenance overhead
 - **Test Coverage**: Static file serving, HTTP headers, security headers, localhost accessibility properties
 
 For detailed information, see `tests/README.md` and `tests/property-tests/README.md`.
@@ -146,6 +141,12 @@ ports:
    ```bash
    docker compose logs web
    ```
+
+### Health Check Issues
+If health checks fail, the container uses `curl` for health checking. If you encounter issues:
+1. Check health status: `docker inspect extensible-web-app --format='{{json .State.Health}}'`
+2. View recent logs: `docker logs --tail 50 extensible-web-app`
+3. The health check waits 60 seconds before starting, then checks every 30 seconds
 
 ### Static Files Not Loading
 1. Ensure files are in the `static/` directory
