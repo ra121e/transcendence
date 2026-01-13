@@ -31,3 +31,27 @@ This document defines the requirements for a minimal web application foundation.
 1. THE Web_App SHALL run in a Docker container
 2. THE Web_App SHALL start with a single docker-compose command
 3. THE Web_App SHALL be accessible on localhost after startup
+
+### Requirement 3: Backend API Foundation
+
+**User Story:** As a developer, I want a backend API foundation, so that I can handle dynamic requests and provide a base for future business logic implementation.
+
+#### Acceptance Criteria
+
+1. THE Web_App SHALL include a backend API service running in a separate container
+2. THE Web_App SHALL route API requests through Nginx reverse proxy to the backend service
+3. WHEN a user accesses `/api/health`, THE Web_App SHALL return a JSON health check response
+4. THE Web_App SHALL maintain existing static content serving while adding API functionality
+5. THE Web_App SHALL use environment variables for backend service configuration
+
+### Requirement 4: API Integration and Routing
+
+**User Story:** As a developer, I want proper API routing and integration, so that I can build upon the API foundation with future features.
+
+#### Acceptance Criteria
+
+1. THE Web_App SHALL configure Nginx to proxy `/api/*` requests to the backend service
+2. THE Web_App SHALL serve static content for all non-API requests
+3. THE Web_App SHALL handle API service unavailability gracefully with proper error responses
+4. WHEN the backend service is running, THE Web_App SHALL forward API requests without modifying request/response data
+5. THE Web_App SHALL maintain single-command deployment for the extended system
