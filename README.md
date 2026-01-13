@@ -76,6 +76,9 @@ For environments without npm and Docker dependencies:
 ```powershell
 # Validate Nginx and Docker Compose configuration (runs without Docker)
 powershell -ExecutionPolicy Bypass -File tests/validate-nginx-config.ps1 -Verbose
+
+# Validate deployment configuration (runs without Docker)
+powershell -ExecutionPolicy Bypass -File tests/validate-deployment-config.ps1 -Verbose
 ```
 
 #### Property-Based Tests
@@ -96,6 +99,13 @@ powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose
 # Bash integration tests
 chmod +x tests/test-nginx-config.sh
 ./tests/test-nginx-config.sh
+
+# Deployment tests (PowerShell)
+powershell -ExecutionPolicy Bypass -File tests/Test-Deployment.ps1 -Verbose
+
+# Deployment tests (Bash)
+chmod +x tests/test-deployment.sh
+./tests/test-deployment.sh
 ```
 
 #### Property-Based Tests (Docker Required)
