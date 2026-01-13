@@ -34,21 +34,40 @@ This directory contains unit tests for the Nginx configuration that validate sta
 - **Requirements**: Docker, Docker Compose, curl, bash
 - **Coverage**: Same as PowerShell integration tests
 
-### 4. Node.js Tests (Alternative)
-- **File**: `nginx-config.test.js`
-- **Purpose**: Node.js-based HTTP testing framework
-- **Requirements**: Node.js, Docker, Docker Compose
-- **Coverage**: Comprehensive HTTP testing with detailed assertions
+## Test Selection Guide
+
+Choose the appropriate test method based on your environment:
+
+| Environment | Recommended Test Method | Requirements |
+|-------------|------------------------|--------------|
+| **Development (Quick validation)** | Configuration Validation | PowerShell only |
+| **Windows + Docker** | PowerShell Integration Tests | Docker, Docker Compose, PowerShell |
+| **Unix/Linux + Docker** | Bash Integration Tests | Docker, Docker Compose, curl, bash |
+| **CI/CD Pipeline** | Layered testing approach | Docker, Docker Compose |
+
+## Prerequisites
+
+### Minimum Requirements (Configuration Validation Only)
+- **PowerShell** (Windows) or **Bash** (Unix/Linux)
+- No Docker required
+
+### Full Integration Testing Requirements
+- **Docker** and **Docker Compose**
+- **PowerShell** (Windows) or **Bash** (Unix/Linux)
 
 ## Running the Tests
 
-### Configuration Validation (No Docker Required)
+### 1. Configuration Validation (No Docker Required)
+**Requirements**: PowerShell only
 ```powershell
 # Run configuration validation tests
 powershell -ExecutionPolicy Bypass -File tests/validate-nginx-config.ps1 -Verbose
 ```
 
-### Integration Tests (Docker Required)
+### 2. Integration Tests (Docker Required)
+
+#### Option A: PowerShell Integration Tests (Windows)
+**Requirements**: Docker, Docker Compose, PowerShell
 ```powershell
 # Ensure Docker and Docker Compose are installed and running
 docker --version
@@ -56,13 +75,14 @@ docker-compose --version
 
 # Run PowerShell integration tests
 powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose
+```
 
-# Or run bash tests (Unix/Linux)
+#### Option B: Bash Integration Tests (Unix/Linux)
+**Requirements**: Docker, Docker Compose, curl, bash
+```bash
+# Run bash tests
 chmod +x tests/test-nginx-config.sh
 ./tests/test-nginx-config.sh
-
-# Or run Node.js tests
-npm test
 ```
 
 ## Test Coverage
