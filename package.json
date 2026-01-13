@@ -1,0 +1,11 @@
+{
+  "name": "extensible-web-app-tests",
+  "version": "1.0.0",
+  "description": "Unit tests for Extensible Web App",
+  "scripts": {
+    "test": "node tests/nginx-config.test.js",
+    "test:unit": "node tests/nginx-config.test.js"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

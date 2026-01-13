@@ -37,7 +37,8 @@ This implementation plan focuses on Phase 1: creating a minimal containerized we
     - Configure proper MIME types and caching
     - _Requirements: 1.1, 1.2_
 
-  - [ ]* 3.2 Write unit tests for Nginx configuration
+  - [x] 3.2 Write unit tests for Nginx configuration
+
     - Test static file serving functionality
     - Test proper HTTP headers and responses
     - _Requirements: 1.1, 1.2_
