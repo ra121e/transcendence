@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node tests/property-tests/localhost-accessibility.test.js",
     "test:property": "node tests/property-tests/localhost-accessibility.test.js",
-    "test:fast": "bash tests/property-tests/test-localhost-accessibility-fast.sh"
+    "test:fast": "bash tests/property-tests/test-localhost-accessibility-fast.sh",
+    "test:sequential": "bash tests/property-tests/test-localhost-accessibility-sequential.sh"
   },
   "type": "module"
 }
