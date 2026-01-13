@@ -225,13 +225,27 @@ The system will use both unit tests and property-based tests for comprehensive c
 - Response format consistency across all valid requests
 - Minimum 100 iterations per property test
 
+### Multi-Environment Testing Support
+
+**Development Environment (Limited Dependencies):**
+- **Requirements**: PowerShell only
+- **Capabilities**: Configuration validation, simulation-based property testing
+- **Tools**: PowerShell scripts with built-in HTTP testing
+- **Purpose**: Quick validation without Docker/npm dependencies
+
+**Production Environment (Full Dependencies):**
+- **Requirements**: Docker, Docker Compose, npm, Node.js, bash
+- **Capabilities**: Full container testing, comprehensive property-based testing
+- **Tools**: Node.js with property-based testing libraries, bash scripts
+- **Purpose**: Complete end-to-end validation with actual containers
+
 **Property Test Configuration:**
-- Use a lightweight HTTP testing framework
+- **Development**: PowerShell-based with simulation mode for missing dependencies
+- **Production**: Node.js with fast-check library for comprehensive property testing
 - Each property test references its design document property
 - Tag format: **Feature: extensible-web-app, Property {number}: {property_text}**
 - Focus on HTTP response validation and container behavior
 
-**Testing Tools:**
-- HTTP client library for request testing
-- Docker API for container state validation
-- HTML parsing library for content structure validation
+**Testing Tools by Environment:**
+- **Development**: PowerShell HTTP client, configuration validation
+- **Production**: Node.js HTTP libraries, Docker API, HTML parsing libraries

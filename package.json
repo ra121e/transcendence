@@ -1,0 +1,10 @@
+{
+  "name": "extensible-web-app-tests",
+  "version": "1.0.0",
+  "description": "Property-based tests for extensible web app",
+  "scripts": {
+    "test": "node tests/property-tests/localhost-accessibility.test.js",
+    "test:property": "node tests/property-tests/localhost-accessibility.test.js"
+  },
+  "type": "module"
+}

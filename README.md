@@ -64,9 +64,60 @@ This foundation is designed to be extended with additional services:
 - **Caching**: Add Redis or other caching services
 - **Load Balancing**: Configure Nginx as a reverse proxy
 
-## Troubleshooting
+## Testing
 
-### Port Already in Use
+This project includes a comprehensive test suite that supports both development and production environments.
+
+### Development Environment Testing (PowerShell Only)
+
+For environments without npm and Docker dependencies:
+
+#### Configuration Validation Tests
+```powershell
+# Validate Nginx and Docker Compose configuration (runs without Docker)
+powershell -ExecutionPolicy Bypass -File tests/validate-nginx-config.ps1 -Verbose
+```
+
+#### Property-Based Tests
+```powershell
+# Localhost accessibility property test (simulation mode)
+powershell -ExecutionPolicy Bypass -File tests/property-tests/Test-LocalhostAccessibility.ps1 -Verbose
+```
+
+### Production Environment Testing (Full Dependencies)
+
+For environments with Docker, npm, and bash available:
+
+#### Unit Tests (Docker Required)
+```bash
+# PowerShell integration tests
+powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose
+
+# Bash integration tests
+chmod +x tests/test-nginx-config.sh
+./tests/test-nginx-config.sh
+```
+
+#### Property-Based Tests (Docker Required)
+```bash
+# Node.js property tests
+npm install
+npm run test:property
+
+# Bash property tests
+chmod +x tests/property-tests/test-localhost-accessibility.sh
+./tests/property-tests/test-localhost-accessibility.sh
+```
+
+### Testing Environment Details
+
+- **Development Environment**: PowerShell-only execution, property tests run in simulation mode
+- **Production Environment**: Docker + npm/bash for complete container testing
+- **Test Coverage**: Static file serving, HTTP headers, security headers, localhost accessibility properties
+
+For detailed information, see `tests/README.md` and `tests/property-tests/README.md`.
+
+## Troubleshooting
 If port 8080 is already in use, change the port mapping in `docker-compose.yml`:
 ```yaml
 ports:
