@@ -34,11 +34,13 @@ This directory contains property-based tests that validate universal properties 
 - **Features**: Full testing with actual Docker containers, detailed status code distribution analysis
 
 #### Production Environment Version (Bash)
-- **File**: `test-localhost-accessibility.sh`
+- **File**: `test-localhost-accessibility.sh` (standard version)
+- **File**: `test-localhost-accessibility-fast.sh` (optimized version)
 - **Property**: Same as above
 - **Validates**: Requirements 2.3
 - **Iterations**: 120 test cases
 - **Features**: Unix/Linux environment execution, curl-based HTTP testing
+- **Performance**: Fast version uses parallel execution and optimized timeouts
 
 ## Execution Methods
 
@@ -76,8 +78,15 @@ node tests/property-tests/localhost-accessibility.test.js
 # Grant execution permissions (first time only)
 chmod +x tests/property-tests/test-localhost-accessibility.sh
 
-# Run Bash property tests
+# Run standard Bash property tests
 ./tests/property-tests/test-localhost-accessibility.sh
+
+# Run optimized fast Bash property tests (recommended)
+chmod +x tests/property-tests/test-localhost-accessibility-fast.sh
+./tests/property-tests/test-localhost-accessibility-fast.sh
+
+# Or use npm script for fast version
+npm run test:fast
 ```
 
 ## Property Test Design

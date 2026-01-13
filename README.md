@@ -104,9 +104,14 @@ chmod +x tests/test-nginx-config.sh
 npm install
 npm run test:property
 
-# Bash property tests
+# Bash property tests (standard)
 chmod +x tests/property-tests/test-localhost-accessibility.sh
 ./tests/property-tests/test-localhost-accessibility.sh
+
+# Bash property tests (fast/optimized - recommended)
+chmod +x tests/property-tests/test-localhost-accessibility-fast.sh
+./tests/property-tests/test-localhost-accessibility-fast.sh
+# Or: npm run test:fast
 ```
 
 ### Testing Environment Details

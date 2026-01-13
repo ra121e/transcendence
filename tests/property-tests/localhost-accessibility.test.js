@@ -115,7 +115,7 @@ class PropertyTestRunner {
         });
     }
 
-    async waitForContainer(maxAttempts = 30) {
+    async waitForContainer(maxAttempts = 15) {  // Reduced from 30
         for (let attempt = 0; attempt < maxAttempts; attempt++) {
             try {
                 const result = await this.makeHttpRequest('/', 'GET', {});
@@ -125,7 +125,7 @@ class PropertyTestRunner {
             } catch (error) {
                 // Ignore errors during startup
             }
-            await sleep(1000);
+            await sleep(500);  // Reduced from 1000ms
         }
         return false;
     }
@@ -159,7 +159,7 @@ class PropertyTestRunner {
                 path: path,
                 method: method,
                 headers: headers,
-                timeout: 5000
+                timeout: 1000  // Reduced from 5000ms to 1000ms for localhost
             };
 
             const req = http.request(options, (res) => {

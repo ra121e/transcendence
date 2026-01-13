@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Property-Based Test for Localhost Accessibility (Production Environment)
+# Fast Property-Based Test for Localhost Accessibility (Production Environment)
 # Feature: extensible-web-app, Property 3: Localhost accessibility
 # Validates: Requirements 2.3
 #
@@ -8,11 +8,12 @@
 # localhost on the configured port should return successful responses
 #
 # Requirements: Docker, Docker Compose, curl, bash
+# Optimizations: Parallel execution, reduced timeouts, batch processing
 
-echo "🧪 Running Property-Based Test: Localhost Accessibility (Production Environment)"
+echo "🧪 Running Fast Property-Based Test: Localhost Accessibility (Production Environment)"
 echo "📋 Property: For any properly started container instance, HTTP requests to localhost should return responses"
 echo "🎯 Validates: Requirements 2.3"
-echo "🔧 Environment: Bash + Docker + curl"
+echo "🔧 Environment: Bash + Docker + curl (Optimized)"
 echo ""
 
 # Colors for output
@@ -26,17 +27,18 @@ TOTAL_ITERATIONS=${TOTAL_ITERATIONS:-120}  # Allow override via environment vari
 SUCCESSFUL_REQUESTS=0
 FAILED_REQUESTS=0
 CONTAINER_STARTED=false
+PARALLEL_JOBS=10  # Number of parallel curl processes
 
 # Arrays for random test case generation
 VALID_PATHS=("/" "/style.css" "/index.html")
 EDGE_CASE_PATHS=("/" "/style.css" "/favicon.ico" "/robots.txt" "/nonexistent.html")
 METHODS=("GET" "HEAD")
 USER_AGENTS=(
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"
     "curl/7.68.0"
-    "Bash Property Test"
+    "Fast Bash Property Test"
 )
 
 # Status code tracking
@@ -66,23 +68,23 @@ generate_test_case() {
 
 # Function to start container
 start_container() {
-    echo "🐳 Starting Docker container for property testing..."
+    echo "🐳 Starting Docker container for fast property testing..."
     
     if docker compose up -d > /dev/null 2>&1; then
         CONTAINER_STARTED=true
         echo -e "${GREEN}✅ Container started successfully${NC}"
         
-        # Wait for container to be ready
+        # Wait for container to be ready with faster checks
         echo "⏳ Waiting for container to be ready..."
         local attempts=0
-        local max_attempts=30
+        local max_attempts=15  # Reduced from 30
         
         while [ $attempts -lt $max_attempts ]; do
-            if curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/ 2>/dev/null | grep -q "200" 2>/dev/null; then
+            if curl -s -o /dev/null --connect-timeout 1 --max-time 1 http://localhost:8080/ 2>/dev/null; then
                 echo -e "${GREEN}✅ Container is ready for testing${NC}"
                 return 0
             fi
-            sleep 1
+            sleep 0.5  # Reduced from 1 second
             ((attempts++))
         done
         
@@ -106,34 +108,84 @@ stop_container() {
     fi
 }
 
-# Function to test HTTP request
+# Function to test HTTP request (optimized)
 test_http_request() {
     local path="$1"
     local method="$2"
     local user_agent="$3"
+    local iteration="$4"
     
     local status_code
-    # Optimized timeouts for faster execution
+    # Aggressive timeout optimization for localhost testing
     status_code=$(curl -s -o /dev/null -w "%{http_code}" \
         -X "$method" \
         -H "User-Agent: $user_agent" \
         -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-        --connect-timeout 1 \
-        --max-time 2 \
+        --connect-timeout 0.5 \
+        --max-time 1 \
         "http://localhost:8080$path" 2>/dev/null)
     
     if [ $? -eq 0 ] && [ -n "$status_code" ] && [ "$status_code" -ge 200 ] && [ "$status_code" -lt 600 ]; then
-        # Track status code distribution
-        STATUS_CODE_COUNT[$status_code]=$((${STATUS_CODE_COUNT[$status_code]:-0} + 1))
-        echo "success|$status_code"
+        echo "$iteration|success|$status_code"
     else
-        echo "failure|timeout_or_error"
+        echo "$iteration|failure|timeout_or_error"
     fi
+}
+
+# Function to run batch of tests in parallel
+run_test_batch() {
+    local start_iteration=$1
+    local end_iteration=$2
+    local temp_dir="/tmp/property_test_$$"
+    mkdir -p "$temp_dir"
+    
+    # Generate and run tests in parallel
+    for ((i=start_iteration; i<=end_iteration; i++)); do
+        test_case=$(generate_test_case $i)
+        IFS='|' read -r iteration path method user_agent <<< "$test_case"
+        
+        # Run test in background
+        (test_http_request "$path" "$method" "$user_agent" "$iteration" > "$temp_dir/result_$iteration") &
+        
+        # Limit concurrent processes
+        if [ $((i % PARALLEL_JOBS)) -eq 0 ]; then
+            wait  # Wait for current batch to complete
+        fi
+    done
+    
+    wait  # Wait for all remaining processes
+    
+    # Collect results
+    for ((i=start_iteration; i<=end_iteration; i++)); do
+        if [ -f "$temp_dir/result_$i" ]; then
+            result=$(cat "$temp_dir/result_$i")
+            IFS='|' read -r iteration status error_info <<< "$result"
+            
+            if [ "$status" = "success" ]; then
+                ((SUCCESSFUL_REQUESTS++))
+                STATUS_CODE_COUNT[$error_info]=$((${STATUS_CODE_COUNT[$error_info]:-0} + 1))
+                
+                # Log every 20th iteration
+                if [ $((i % 20)) -eq 0 ]; then
+                    echo -e "${GREEN}✅ Iteration $i: → $error_info${NC}"
+                fi
+            else
+                ((FAILED_REQUESTS++))
+            fi
+        else
+            ((FAILED_REQUESTS++))
+        fi
+    done
+    
+    # Cleanup
+    rm -rf "$temp_dir"
 }
 
 # Cleanup function
 cleanup() {
     stop_container
+    # Kill any remaining background processes
+    jobs -p | xargs -r kill 2>/dev/null
 }
 
 # Set trap for cleanup
@@ -147,30 +199,26 @@ if ! start_container; then
 fi
 
 echo ""
-echo -e "${CYAN}🔄 Running $TOTAL_ITERATIONS property test iterations...${NC}"
+echo -e "${CYAN}🔄 Running $TOTAL_ITERATIONS property test iterations (parallel execution)...${NC}"
 echo ""
 
-# Run property tests
-for ((i=1; i<=TOTAL_ITERATIONS; i++)); do
-    # Generate test case
-    test_case=$(generate_test_case $i)
-    IFS='|' read -r iteration path method user_agent <<< "$test_case"
-    
-    # Execute test
-    result=$(test_http_request "$path" "$method" "$user_agent")
-    IFS='|' read -r status error_info <<< "$result"
-    
-    if [ "$status" = "success" ]; then
-        ((SUCCESSFUL_REQUESTS++))
-        
-        # Log every 20th iteration to show progress
-        if [ $((i % 20)) -eq 0 ]; then
-            echo -e "${GREEN}✅ Iteration $i: $method $path → $error_info${NC}"
-        fi
-    else
-        ((FAILED_REQUESTS++))
+# Record start time
+start_time=$(date +%s)
+
+# Run tests in batches for better performance
+batch_size=20
+for ((start=1; start<=TOTAL_ITERATIONS; start+=batch_size)); do
+    end=$((start + batch_size - 1))
+    if [ $end -gt $TOTAL_ITERATIONS ]; then
+        end=$TOTAL_ITERATIONS
     fi
+    
+    run_test_batch $start $end
 done
+
+# Record end time
+end_time=$(date +%s)
+execution_time=$((end_time - start_time))
 
 echo ""
 echo -e "${CYAN}📊 Property Test Results:${NC}"
@@ -188,6 +236,7 @@ else
 fi
 
 echo -e "${YELLOW}📈 Success rate: ${success_rate_display}%${NC}"
+echo -e "${YELLOW}⏱️ Execution time: ${execution_time} seconds${NC}"
 
 echo ""
 echo -e "${CYAN}📋 Status Code Distribution:${NC}"
@@ -209,10 +258,11 @@ if [ "$success_rate" -ge 95 ]; then
     echo -e "${GREEN}🎉 Property Test PASSED: Localhost accessibility verified${NC}"
     echo -e "${GREEN}✅ The container consistently responds to HTTP requests on localhost:8080${NC}"
     echo -e "${GREEN}📊 Achieved ${success_rate_display}% success rate (threshold: 95%)${NC}"
+    echo -e "${GREEN}⚡ Fast execution completed in ${execution_time} seconds${NC}"
     
     cleanup
     echo ""
-    echo -e "${GREEN}🏆 Property-based test completed successfully!${NC}"
+    echo -e "${GREEN}🏆 Fast property-based test completed successfully!${NC}"
     echo -e "${GREEN}✅ Production environment validation complete${NC}"
     exit 0
 else
