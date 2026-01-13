@@ -23,12 +23,12 @@ A minimal containerized web application foundation that serves static content us
 2. Navigate to the project directory
 3. Start the application:
    ```bash
-   docker-compose up -d
+   docker compose up -d
    ```
 4. Open your browser and visit: http://localhost:8080
 5. To stop the application:
    ```bash
-   docker-compose down
+   docker compose down
    ```
 
 ## Project Structure
@@ -78,7 +78,7 @@ ports:
 2. Verify no port conflicts exist
 3. Check container logs:
    ```bash
-   docker-compose logs web
+   docker compose logs web
    ```
 
 ### Static Files Not Loading
@@ -86,7 +86,7 @@ ports:
 2. Check file permissions
 3. Restart the container:
    ```bash
-   docker-compose restart
+   docker compose restart
    ```
 
 ## License

@@ -71,7 +71,7 @@ powershell -ExecutionPolicy Bypass -File tests/validate-nginx-config.ps1 -Verbos
 ```powershell
 # Ensure Docker and Docker Compose are installed and running
 docker --version
-docker-compose --version
+docker compose version
 
 # Run PowerShell integration tests
 powershell -ExecutionPolicy Bypass -File tests/Test-NginxConfig.ps1 -Verbose

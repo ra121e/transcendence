@@ -38,7 +38,7 @@ run_test() {
 # Function to start container
 start_container() {
     echo "🐳 Starting Docker container..."
-    if docker-compose up -d > /dev/null 2>&1; then
+    if docker compose up -d > /dev/null 2>&1; then
         CONTAINER_STARTED=true
         echo "✅ Container started successfully"
         
@@ -68,7 +68,7 @@ start_container() {
 stop_container() {
     if [ "$CONTAINER_STARTED" = true ]; then
         echo "🛑 Stopping Docker container..."
-        docker-compose down > /dev/null 2>&1
+        docker compose down > /dev/null 2>&1
         echo "✅ Container stopped"
     fi
 }

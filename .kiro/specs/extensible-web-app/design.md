@@ -63,6 +63,7 @@ graph TB
 #### Container Infrastructure
 - **Base Image**: `nginx:alpine` (lightweight, secure)
 - **Orchestration**: Docker Compose for single-command deployment
+- **Command**: Uses modern `docker compose` command (not legacy `docker-compose`)
 - **Volumes**: Static files mounted from host to container
 - **Networking**: Single container with port mapping (extensible to multi-container network)
 - **Status**: ✅ To be implemented in Phase 1

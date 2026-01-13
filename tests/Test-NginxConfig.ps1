@@ -38,7 +38,7 @@ function Start-TestContainer {
     Write-Host "🐳 Starting Docker container..." -ForegroundColor Yellow
     
     try {
-        $result = docker-compose up -d 2>&1
+        $result = docker compose up -d 2>&1
         if ($LASTEXITCODE -eq 0) {
             $script:ContainerStarted = $true
             Write-Host "✅ Container started successfully" -ForegroundColor Green
@@ -78,7 +78,7 @@ function Stop-TestContainer {
     if ($script:ContainerStarted) {
         Write-Host "🛑 Stopping Docker container..." -ForegroundColor Yellow
         try {
-            docker-compose down 2>&1 | Out-Null
+            docker compose down 2>&1 | Out-Null
             Write-Host "✅ Container stopped" -ForegroundColor Green
         } catch {
             Write-Host "⚠️ Warning: Failed to stop container cleanly" -ForegroundColor Yellow
