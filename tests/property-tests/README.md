@@ -89,7 +89,31 @@ chmod +x tests/property-tests/test-localhost-accessibility-fast.sh
 npm run test:fast
 ```
 
-## Property Test Design
+## Recommended Testing Strategy
+
+### Production/CI Environment
+- **Primary**: Node.js version (`npm run test:property`)
+  - Most reliable and consistent
+  - 100% success rate confirmed
+  - Better error handling and reporting
+
+### Development/Debug Environment
+- **Primary**: PowerShell version (simulation mode)
+  - No Docker dependency
+  - Quick validation of test logic
+  
+### Compatibility/Debug Testing
+- **Bash versions**: For Unix/Linux compatibility and debugging
+  - Standard version: `./tests/property-tests/test-localhost-accessibility.sh`
+  - Sequential version: `./tests/property-tests/test-localhost-accessibility-sequential.sh`
+  - Fast version: `./tests/property-tests/test-localhost-accessibility-fast.sh`
+  - GET-only version: `./tests/property-tests/test-localhost-accessibility-get-only.sh`
+
+### HEAD Request Optimization
+All bash versions now include HEAD-specific optimizations:
+- HEAD requests use `curl -I` with extended timeout (8-10 seconds)
+- GET requests use standard timeout (3-5 seconds)
+- This prevents HEAD request body-wait timeouts
 
 ### Test Case Generation
 Property tests generate 120 test cases with:

@@ -31,7 +31,7 @@ CONTAINER_STARTED=false
 # Arrays for random test case generation
 VALID_PATHS=("/" "/style.css" "/index.html")
 EDGE_CASE_PATHS=("/" "/style.css" "/favicon.ico" "/robots.txt" "/nonexistent.html")
-METHODS=("GET" "HEAD")
+METHODS=("GET" "HEAD")  # Restore HEAD with proper handling
 USER_AGENTS=(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
@@ -115,14 +115,23 @@ test_http_request() {
     local iteration="$4"
     
     local status_code
-    # Conservative timeouts for maximum reliability
-    status_code=$(curl -s -o /dev/null -w "%{http_code}" \
-        -X "$method" \
-        -H "User-Agent: $user_agent" \
-        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-        --connect-timeout 2 \
-        --max-time 3 \
-        "http://localhost:8080$path" 2>/dev/null)
+    # HEAD-specific optimization: use -I flag and longer timeout
+    if [ "$method" = "HEAD" ]; then
+        status_code=$(curl -s -I -w "%{http_code}" \
+            -H "User-Agent: $user_agent" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            --connect-timeout 2 \
+            --max-time 10 \
+            "http://localhost:8080$path" 2>/dev/null | tail -1)
+    else
+        status_code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X "$method" \
+            -H "User-Agent: $user_agent" \
+            -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+            --connect-timeout 2 \
+            --max-time 3 \
+            "http://localhost:8080$path" 2>/dev/null)
+    fi
     
     if [ $? -eq 0 ] && [ -n "$status_code" ] && [ "$status_code" -ge 200 ] && [ "$status_code" -lt 600 ]; then
         STATUS_CODE_COUNT[$status_code]=$((${STATUS_CODE_COUNT[$status_code]:-0} + 1))
