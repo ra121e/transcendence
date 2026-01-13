@@ -94,35 +94,52 @@ test_http_request_debug() {
     
     echo "🔍 Test $iteration: $method $path"
     
-    # Test with verbose curl output
-    local temp_file="/tmp/curl_debug_$$"
+    # Test with separate curl calls for cleaner output
     local status_code
+    local curl_output
     
+    # Get status code only
     status_code=$(curl -s -o /dev/null -w "%{http_code}" \
         -X "$method" \
         -H "User-Agent: Debug Test" \
         -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
-        --connect-timeout 1 \
-        --max-time 2 \
-        --write-out "Time: %{time_total}s, Size: %{size_download} bytes\n" \
-        "http://localhost:8080$path" 2>"$temp_file")
+        --connect-timeout 3 \
+        --max-time 5 \
+        "http://localhost:8080$path" 2>/dev/null)
     
     local curl_exit_code=$?
+    
+    # Get timing information separately
+    local timing_info
+    timing_info=$(curl -s -o /dev/null -w "Time: %{time_total}s, Size: %{size_download} bytes" \
+        -X "$method" \
+        -H "User-Agent: Debug Test" \
+        -H "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8" \
+        --connect-timeout 3 \
+        --max-time 5 \
+        "http://localhost:8080$path" 2>/dev/null)
+    
+    echo "   Curl exit code: $curl_exit_code"
+    echo "   HTTP status: $status_code"
+    echo "   $timing_info"
     
     if [ $curl_exit_code -eq 0 ] && [ -n "$status_code" ] && [ "$status_code" -ge 200 ] && [ "$status_code" -lt 600 ]; then
         echo -e "   ${GREEN}✅ Success: HTTP $status_code${NC}"
         STATUS_CODE_COUNT[$status_code]=$((${STATUS_CODE_COUNT[$status_code]:-0} + 1))
         ((SUCCESSFUL_REQUESTS++))
     else
-        echo -e "   ${RED}❌ Failed: curl exit code $curl_exit_code, HTTP status: $status_code${NC}"
-        if [ -s "$temp_file" ]; then
-            echo "   Error details: $(cat "$temp_file")"
+        echo -e "   ${RED}❌ Failed${NC}"
+        if [ $curl_exit_code -eq 28 ]; then
+            echo "   Error: Timeout (curl exit code 28)"
+        elif [ $curl_exit_code -ne 0 ]; then
+            echo "   Error: Curl failed with exit code $curl_exit_code"
+        else
+            echo "   Error: Invalid HTTP status code: $status_code"
         fi
         FAILED_TESTS+=("Test $iteration: $method $path - curl exit $curl_exit_code, HTTP $status_code")
         ((FAILED_REQUESTS++))
     fi
     
-    rm -f "$temp_file"
     echo ""
 }
 
